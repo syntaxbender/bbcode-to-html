@@ -15,7 +15,8 @@ This script prevents parse errors and fully editable for my usage. I can get ins
 | [h1]text[/h1] | create h2 elements |
 | [h2]text[/h2] | create h3 elements |
 | [h3]text[/h3] | create h4 elements |
-| [code]text[/h3] | create code elements w/ highlightjs |
+| [color=#hex]text[/color] | color text |
+| [code]text[/code] | create code elements w/ highlightjs |
 | [quote]text[/quote] | create blockquote elements |
 | [ul] li ggcode [/ul] | create ul element |
 | [li]text1[/li] | create li element |

@@ -15,27 +15,35 @@
 		var buffer_activate = false;
 		var reverse_buffer = "";
 		var reverse_buffer_activate = false;
+		var close_tag_search = false;
 		for(start;start<text.length;start++){
-			if(reversestart<start) return;
+			if(reversestart<start) break;
 
 			//eşittiri buralarda bi yerlerde kontrol etmek lazım
 			if(text[start] == "]"){
 				buffer_activate = false;
 				if(tagarray[buffer] != null){
 					alert("go go go");
+					close_tag_search = false;
+					//eğer ki close_type değilse reverse kontrole gerek yok.
 					//tersten yardırıyoruz ki tag kapanmış mı bakabilek.
 					for(reversestart;reversestart>=0;reversestart--){
-						if(reversestart<start) return;
+						if(reversestart<start) break;
 						//if(reversestart < start) return; // yapıyoruz bu sporu
 						console.log(reversestart);
 						if(text[reversestart] == "["){
 							alert("here we go again");
 							reverse_buffer_activate = false;
-							if(tagarray[reverse_buffer.substr(1, reverse_buffer.length)] != null && reverse_buffer.substr(0, 1) == "/"){
-								alert("ok");
-							}else{
-								alert("yat aşşa");
-								alert(reverse_buffer.substr(1, reverse_buffer.length)+" - "+reverse_buffer.substr(0, 1));
+							if(tagarray[reverse_buffer.substr(1, reverse_buffer.length)] != null && reverse_buffer.substr(0, 1) == "/") {
+								if(buffer == reverse_buffer.substr(1, reverse_buffer.length)){
+									close_tag_search = true;
+									reverse_buffer = "";
+									break;
+								}else{
+									close_tag_search = false;
+									reverse_buffer = "";
+									break;
+								}
 							}
 							reverse_buffer = "";
 						} 
@@ -44,10 +52,16 @@
 						}
 						if(text[reversestart] == "]") reverse_buffer_activate = true;
 					}
+					if(close_tag_search === false){
+						alert("yat aşşa");
+					}
 					// buraya kadar tersten kontrol
 				}
 				//dananın kuyruğu burada kopacak.
 				//kopuyor şuan
+				//tabancanın uci kopti
+				//başaramadık abi
+				//tersten kontrol efektif bi yöntem değil çok boyutlu bi dizide baştan sona taramak gerek.
 				buffer = "";
 			} 
 			if(buffer_activate === true){
