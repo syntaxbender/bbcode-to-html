@@ -1,0 +1,87 @@
+<textarea id="textbox"></textarea>
+<input type="button" onclick="go_b_davay_davay_rusj_b();">
+<script type="text/javascript">
+	function go_b_davay_davay_rusj_b(){
+		var text = document.getElementById("textbox").value;
+		GGCodeParser(text);
+	}
+	function GGCodeParseError(){
+		alert("ggwp");
+	}
+	function replaceRange(s, start, end, substitute) {
+    	return s.substring(0, start) + substitute + s.substring(end);
+	}
+	function bold_func(text,open_tag_start, open_tag_end, close_tag_start, close_tag_end){
+		text = replaceRange(text, open_tag_start,  open_tag_end, "<b>"); // "that is a string"
+		return replaceRange(text, close_tag_start,  close_tag_end, "</b>"); // "that is a string"
+
+	}
+	function GGCodeParser(text){
+		var start = 0;
+		var total = text.length;
+		var tag_checker = [];
+		var tag_placements = [];
+		var tag_positions = [];
+		// close_type harici de eklenecek. tagı kapamak zorunda olmamalıyım bence.
+		// eşittir kontrolü de gerekiyor.
+		var tagarray = {"b":["tag_close_type","bold_func"],"code":["tag_close_type","code_func"],"img":["tag_close_type","img_func"]}; // tag list
+		var buffer = "";
+		var buffer_activate = false;
+		var start_pos = 0;
+		var end_pos = 0;
+		for(start;start<text.length;start++){
+			//eşittiri buralarda bi yerlerde kontrol etmek lazım
+			if(text[start] == "]"){
+				end_pos = start;
+				buffer_activate = false;
+				if(tagarray[buffer] != null){
+					tag_checker.push([buffer,(tag_placements.length)]);
+					tag_placements.push([buffer,start_pos,end_pos+1]);
+				}else if(tagarray[buffer.substr(1, buffer.length)] != null && buffer.substr(0, 1) == "/") {
+					if(tag_checker[(tag_checker.length-1)][0] == buffer.substr(1, buffer.length)){
+						console.log(tag_checker);
+						console.log((tag_checker.length-1));
+						console.log(tag_checker[(tag_checker.length-1)][1]);
+						tag_placements[tag_checker[(tag_checker.length-1)][1]].push(start_pos);
+						tag_placements[tag_checker[(tag_checker.length-1)][1]].push(end_pos+1);
+						tag_checker.splice((tag_checker.length-1), 1);
+						//tag_placements.push(buffer);
+
+					}else{
+						GGCodeParseError();
+						return;
+					}
+				}
+				buffer = "";
+			} 
+			if(buffer_activate === true){
+				buffer += text[start];
+			}
+			if(text[start] == "["){
+				start_pos = start;
+				buffer_activate = true;
+			}
+		}
+		if(tag_checker.length != 0){
+			GGCodeParseError();
+			return;
+		}
+		console.log(tag_placements);
+		var total_degisim = 0;
+		//asdadasd<ab>[img][/img][b][/b][/b]
+		for(var i in tag_placements){
+			var start_tag = "<abc>";
+			var end_tag = "</abc>";
+			var fark = start_tag.length-(tag_placements[i][2]-tag_placements[i][1]);
+			var fark2 = end_tag.length-(tag_placements[i][4]-tag_placements[i][3])+fark;
+			text = replaceRange(text, total_degisim+tag_placements[i][1], total_degisim+tag_placements[i][2], start_tag);
+			text = replaceRange(text, total_degisim+fark+tag_placements[i][3], total_degisim+fark+tag_placements[i][4], end_tag);
+			total_degisim = fark2+total_degisim;
+			console.log(fark+" - "+fark2+" - "+total_degisim);
+			console.log(text);
+			/*console.log(text.substring(tag_placements[i][1], tag_placements[i][2]));
+			console.log(text.substring(tag_placements[i][3], tag_placements[i][4]));*/
+
+		}
+	}
+</script> 
