@@ -1,5 +1,5 @@
-<textarea id="textbox"></textarea>
-<input type="button" onclick="start();" style="width:220px;height:150px;">
+<textarea id="textbox" style="width:220px;height:150px;" placeholder="Test edilmek üzere b,code,img taglarını içeren bir test stringi gir."></textarea>
+<input type="button" onclick="start();" value="test et" style="display: block;">
 <script type="text/javascript">
 	// amaç?
 	// hedef-1 [Passed +++]
@@ -38,7 +38,7 @@
 	}
 	function GGCodeParseError(){
 		//bu kod bloğu tagın düzgün kapanmaması, sıralama hatası gibi şeylerde çalışacak.
-		alert("ggwp"); //ggwp
+		alert("hata"); //ggwp
 	}/*
 
 	
@@ -112,6 +112,7 @@
 			GGCodeParseError(); // parse hatası verir.
 			return;
 		}
+		alert("sorun yok düzgünce parse edildi.")
 	}
 </script> 
  
