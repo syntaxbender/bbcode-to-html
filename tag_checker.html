@@ -1,0 +1,117 @@
+<textarea id="textbox"></textarea>
+<input type="button" onclick="start();" style="width:220px;height:150px;">
+<script type="text/javascript">
+	// amaç?
+	// hedef-1 [Passed +++]
+	// tagların sıralamasının doğru olup olmadığını, düzgün kapanıp kapanmadığını kontrol et. [Passed +++]
+	//
+	//
+	// hedef-2
+	// [img] tagı içerisinde mantıken bold tagı kullanılamaz. stringde parse işleminde itere edilirken iterasyon anında açık olan tag için gerekli alttag kısıtlama bilgisi sağlanmalı. uyumsuzluk durumunda parse hatası alınmalı.
+	// hedef-3
+	// her bir tag için belirtilen şekilde([img][/img] tagı <img class="img" src="xxxx.png">'ye img classı ile beraber işaret edecektir gibi özel şeylerin belirtilmesi) replace edilip stringde gerekli değişimin sağlanması.
+
+
+
+	//######################## OLAY NEDİR? BURASI ÇOKOMELLİ ########################
+
+	// varsayım;
+
+	// stringi baştan sona tararken her open tagı bir diziye eleman olarak eklesek, her gelen close tagı için ise de bu diziden sonuncu elemanı çıkarsak; tüm string tarandığında bu dizide 0 eleman varsa ve gelen her close tag, bu dizideki son open tag ile aynı taga ait ise doğru parse edilebilir, syntax hatası olmadığı anlamına geliyor. 
+	// [b][img][/img][b][/b][/b] bu tag örneğini incelersek;
+	// ilk başta 2 tane sırayla b ve img olmak üzere 2 tane open tagı geliyor.
+	// 3. tagımız ise img close tagı.
+	// her open tagı bir dizide sakladığımızı düşünürsek, 3. tag hariç 3. taga kadar;
+	// ["b","img"] şeklinde 2 elemanlı bir dizimiz olurdu.
+	// 3. taga geldik. bir img close tagı. her close tagı için ise open tag arrayinden aynı taga ait oldğu sürece sonuncu elemanı düşürdüğümüzü varsayarsak;
+	// ["b"] şeklinde bir arraya dönüştü
+	// 4. tag b open tagı hemen akabinde de b close tagı var. "b" elemanı ekle çıkar işleminden sonra arrayımız hala ["b"] şeklinde kalacak.
+	// 5. elemanımız b kapama tagı. bu durumda arrayımızdaki "b" elemanı da düşerek arrayımız 0 elemana sahip oluyor. ve belirttiğimiz string parse edilebilir hale geliyor.
+	// kod içerisinde bu arrayı "tag_checker" değişken ismi ile göreceğiz.
+
+	//######################## OLAY NEDİR? BURASI ÇOKOMELLİ ########################
+
+
+	function start(){
+		var text = document.getElementById("textbox").value; // textbox'a yazılan texti alır
+		GGCodeParser(text); // aldığı texti fonksiyona yollar macera başlar.
+	}
+	function GGCodeParseError(){
+		//bu kod bloğu tagın düzgün kapanmaması, sıralama hatası gibi şeylerde çalışacak.
+		alert("ggwp"); //ggwp
+	}/*
+
+	
+
+	// javascriptte belirtilen bir aralık için substring replace methodu olmadığı için aşağıdaki method var. 
+	function replaceRange(s, start, end, substitute) {
+    	return s.substring(0, start) + substitute + s.substring(end);
+	}*/
+
+
+
+	/*her bir tag için çalışacak fonksiyonlardan bir tanesi.
+	function bold_func(text,open_tag_start, open_tag_end, close_tag_start, close_tag_end){
+		text = replaceRange(text, open_tag_start,  open_tag_end, "<b>"); // "that is a string"
+		return replaceRange(text, close_tag_start,  close_tag_end, "</b>"); // "that is a string"
+
+	}*/
+
+
+	// kendime notlar.
+	// close_type harici de eklenecek. tagı kapamak zorunda olmamalıyım bence.([img=xxx.png] gibi)
+	// eşittir kontrolü de gerekiyor. ([color=red]asd[/color] gibi color=red burdaki eşittir.)
+	function GGCodeParser(text){
+		var start = 0; // string indisi
+		var total = text.length; // textboxtan gelen verinin uzunluğu
+
+		var tag_checker = []; // "OLAY NEDİR? BURASI ÇOKOMELLİ" başlığında bahsi geçen open tagleri tutan, close tag geldiğinde sonuncu eleman düşürülen array.
+
+		var tag_placements = []; // text stringinde yer alan her string için open,close tag başlangıç ve bitiş indislerini tutar.
+
+		//b,img,code => tags
+		//tag_close_type => belirtlen tagın kapatılması gerektiğini anlatıyor şuan kontrolü kodda yok. aşağıdaki koda göre her tag kapatılmalı. aksi taktirde parse hatası alır. kısacası aşağıdaki array'da tag_close_type olarak belirtmek şuan için işlevsiz.
+		//bold_func,code_func,img_func => stringde yerleri belirlenen tagların belirtilen fonksiyona orjinal ham string ile beraber yollanıp her fonksiyonda gerekli işleme tabii tutulup return edilmesini planlamıştım. bu sayede modülerlik elde edebilirim gibi hissediyorum. sonradan yeni taglar eklemek kolay olacak gibi.
+		var tagarray = {"b":["tag_close_type","bold_func"],"code":["tag_close_type","code_func"],"img":["tag_close_type","img_func"]}; // tag list
+		var buffer = ""; // her bir tag için [] bu 2 karakter arasındaki stringi tutan değişken
+		var buffer_activate = false; // bufferin tutulup tutulmayacağının kontrol eden boolean.
+		var start_pos = 0; // tagların başlangıç noktalarını tamponlayan değişken.
+		var end_pos = 0; // tagların bitiş noktalarını tamponlayan değişken.
+		for(start;start<text.length;start++){ // burada stringi harf harf taramaya başlıyoruz.
+			//eşittiri buralarda bi yerlerde kontrol etmek lazım
+			if(text[start] == "]"){ // string tarama esnasında herhangi tag bittiği anda gerçekleşen kod bloğu.
+				end_pos = start; // tagın bittiği indis tampon değişkenine işaretlenir.
+				buffer_activate = false; // tag alındığı için tampon kapatılır.
+				if(tagarray[buffer] != null){ // alındığı düşünülen tag gerçek bir AÇMA TAGI(open tag) mı kontrolü yapılır. tanımlı tag arrayınde herhangi bir elemana işaret ediyor mu kontrol edilir.
+					tag_checker.push([buffer,(tag_placements.length)]); // tagların doğruluğundan sorumlu arraya bufferda saklanan tag string olarak ve tag_placement dizisindeki indisi eklenir. tag_placement dizisindeki indisi eklenme sebebi aşağıdaki tag_placements değişkenine yapılan eleman ekleme işlemi yalnızca tagın açıldığı(open tag) indislerini ekler. tag kapanırken(close) de geriye dönük olarak tag_placements'e kapama tagının indislerini de eklemek gerekiyor. o yüzden dolayı tag_checker değişkeninde tag_placements değişkenindeki indislerini de tutmak gerekir.
+					tag_placements.push([buffer,start_pos,end_pos+1]); // başlangıç tagının başladığı string indis numarası tag yerlerini(indislerini) tutan arraya tag adı ile beraber eklenir.
+				}else if(tagarray[buffer.substr(1, buffer.length)] != null && buffer.substr(0, 1) == "/") { // alındığı düşünülen tag gerçek bir KAPAMA TAGI mı kontrolü yapılır. eğer ki bir kapama tagi ise köşeli parantezler içerisinden buffer değişkenine "/img, /b, /code" gibi stringler aktarılır. bu yüzden dolayı ilk harfi törpüleyip tagarray'de tanımlı mı kontrolü yapmak ayrıca da ilk harf "/" mı diye ayrı bir kontrol de yaparak tagın bir kapama tagı olduğu kontrol edilir.
+					if(tag_checker[(tag_checker.length-1)][0] == buffer.substr(1, buffer.length)){ // "OLAY NEDİR? BURASI ÇOKOMELLİ" başlığında bahsettiğim muhabbet. eğer ki bir kapama tagı geliyorsa, o kapama tagı tag_checker'daki son eleman tag ile aynı olmalı. tag_checker'daki en son eklenen eleman buffer değişkenindeki stringin ilk karakteri törpülenmiş haline eşit mi diye kontrol sağlar.
+						console.log(tag_checker); // debug için çıktı
+						console.log((tag_checker.length-1)); // debug için çıktı
+						console.log(tag_checker[(tag_checker.length-1)][1]); // debug için çıktı
+						tag_placements[tag_checker[(tag_checker.length-1)][1]].push(start_pos); // kapama tagının text stringindeki başlangıç indisini tag_placements'e tag_checker'de belirttiğim tag_placements'taki eleman indisine göre, eleman olarak ekler.
+						tag_placements[tag_checker[(tag_checker.length-1)][1]].push(end_pos+1); // kapama tagının text stringindeki bitiş indisini tag_placements'e eleman olarak ekler.
+						tag_checker.splice((tag_checker.length-1), 1); // her kapama tagı geldiğinde tag_checker arraydan son eleman düşürülür.
+					}else{ // tag_checkerdaki son eleman bufferdaki kapama tagi ile aynı değilse
+						GGCodeParseError(); // parse hatası verir.
+						return;
+					}
+				}
+				buffer = ""; // tag bittiğinde buffer da sıfırlanır. yeni bir tagda kullanılmak üzere tampon temizlenir.
+			} 
+			if(buffer_activate === true){ // buffer açıksa;
+				buffer += text[start]; // buffera tagın karakterini step by step her iterasyonda giriyoruz.
+			}
+			if(text[start] == "["){ // tag başladığında gerçekleşen kod bloğu.
+				start_pos = start; // tagın başladığı indis tampon değişkenine işaretlenir.
+				buffer_activate = true; // tag stringi tutulmaya başlanmak üzere buffer açılır.
+			}
+		}
+		if(tag_checker.length != 0){ // string taraması tamamlandığında tag_checker'da tüm open tagların tutulduğu string elemanları close taglar geldikçe düşürülmesi gerekir böylece dizideki eleman sayısı sıfırlanması gerekir. eğer ki sıfırlanmıyorsa parse hatası vardır. kısacası her açılan tag kapanması gerekir(tag_close_type harici bir şey belirtilmediği, istisnai durum olmadıkça.)
+			GGCodeParseError(); // parse hatası verir.
+			return;
+		}
+	}
+</script> 
+ 
