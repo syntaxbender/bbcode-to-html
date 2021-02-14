@@ -1,0 +1,232 @@
+<style type="text/css">
+	div.sbeditor-container {
+	    width: 500px;
+	}
+	div.sbeditor-container > div.sbeditor-textbox-container > textarea.sbeditor-textbox {
+	    background: #dadada;
+	    width: 100%;
+	    margin: 10px 0px 0px 0px;
+	    outline: none;
+	    resize: none;
+	    height: 120px;
+	    border: 1px solid #b1b1b1;
+	}
+	div.sbeditor-container > div.sbeditor-controls {
+	    background: #dadada;
+	    border: 1px solid #b1b1b1;
+	}
+	div.sbeditor-container > div.sbeditor-controls > div {
+	    padding: 7px;
+	    border-radius: 6px;
+	    margin: 5px;
+	    background: #989898;
+	    display: inline-block;
+	    font-family: Arial;
+	    color: #FFF;
+	}
+</style>
+<script type="text/javascript">
+	if(!sbEditor){
+		var sbEditor = {
+			functions: {
+				b: function(text,opentag,closetag){
+					text[opentag] = "<b>";
+					text[closetag] = "</b>";
+					return text;
+				},
+				h1: function(text,opentag,closetag){
+					text[opentag] = "<h1>";
+					text[closetag] = "</h1>";
+					return text;
+				},
+				h2: function(text,opentag,closetag){
+					text[opentag] = "<h2>";
+					text[closetag] = "</h2>";
+					return text;
+				},
+				h3: function(text,opentag,closetag){
+					text[opentag] = "<h3>";
+					text[closetag] = "</h3>";
+					return text;
+				},
+				highlight: function(text,opentag,closetag,parameter){
+					if(parameter == "") parameter="yellow";
+					text[opentag] = "<span style=\"background:"+parameter+";\">";
+					text[closetag] = "</span>";
+					return text;
+				},
+				color: function(text,opentag,closetag,parameter){
+					if(parameter == "") GGCodeParseError("11");
+					text[opentag] = "<span style=\"color:"+parameter+";\">";
+					text[closetag] = "</span>";
+					return text;
+				},
+				u: function(text,opentag,closetag){
+					text[opentag] = "<span style=\"text-decoration:underline;\">";
+					text[closetag] = "</span>";
+					return text;
+				},
+				code: function(text,opentag, closetag,parameter){
+					text[opentag] = "<pre><code class=\""+parameter+"\">";
+					text[closetag] = "</code></pre>";
+					return text;
+				},
+				quote: function(text,opentag, closetag,parameter){
+					if(parameter != "") var author = "<p>"+parameter+"</p>";
+					else var author = "";
+					text[opentag] = "<blockquote>";
+					text[closetag] = author+"</blockquote>";
+					return text;
+				},
+				img: function(text,opentag,closetag){
+					text[opentag] = "<img src=\"";
+					text[closetag] = "\"/>";
+					return text;
+				},
+				ul: function(text,opentag,closetag){
+					text[opentag] = "<ul>";
+					text[closetag] = "</ul>";
+					return text;
+				},
+				li: function(text,opentag,closetag){
+					text[opentag] = "<li>";
+					text[closetag] = "</li>";
+					return text;
+				}
+			},
+			tagarray : {
+				"b":{parameter:false},
+				"color":{parameter:true},
+				"u":{parameter:false},
+				"h1":{parameter:false},
+				"h2":{parameter:false},
+				"h3":{parameter:false},
+				"highlight":{parameter:true},
+				"code":{parameter:true},
+				"img":{parameter:false},
+				"quote":{parameter:true},
+				"ul":{parameter:false},
+				"li":{parameter:false},
+			},
+			init(){
+				window.addEventListener('load', (event) => {
+					var sbeditors = document.querySelectorAll(".sbeditor-container");
+					for(var id=0; id < sbeditors.length;id++){
+						let controls = "";
+						for(cid in this.tagarray){
+							controls += "<div class=\"sbeditor-"+cid+"-button\" data-sbeditor-id=\""+id+"\">"+cid+"</div>";
+						}
+						sbeditors[id].innerHTML =
+						"<div class=\"sbeditor-controls\">"+controls+"</div>\
+						<div class=\"sbeditor-textbox-container\">\
+							<div class=\"sbeditor-preview\"></div>\
+							<textarea class=\"sbeditor-textbox\"></textarea>\
+						</div>\
+						<input type=\"button\" class=\"sbeditor-preview-button\" value=\"Preview\" data-sbeditor-id=\""+id+"\">\
+						";
+						sbeditors[id].querySelector(".sbeditor-preview-button").addEventListener("click", function(){
+							sbEditor.preview(this.getAttribute("data-sbeditor-id"));
+						});
+						/*for(cid in this.tagarray){
+							sbeditors[id].querySelector(".sbeditor-"+cid+"-button").addEventListener("click", function(){
+								//ekleme yapılacak....
+								//
+								//
+								//
+								//
+								//
+							});
+						}*/
+					}
+				});
+			},
+			parser(text){
+				let buffer = "";
+				let tag_checker = [];
+				let text_array = [];
+				let tag_placements = [];
+				for(var start=0;start<text.length;start++){
+					if(text[start] == "]"){
+						if(buffer.includes("=")){
+							buffer = buffer.split("=");
+							var parameter = buffer[1];
+							buffer = buffer[0];
+						}else{
+							var parameter = "";
+						}
+						if(this.tagarray[buffer] != null){
+							if(parameter != "" && this.tagarray[buffer]["parameter"] !== true){
+								GGCodeParseError(11);
+								return;
+							} 
+							tag_checker.push([buffer,tag_placements.length]);
+							tag_placements.push([buffer,parameter,text_array.length]);
+							text_array.push(buffer);
+						}else if(this.tagarray[buffer.substr(1, buffer.length)] != null && buffer.substr(0, 1) == "/") {
+							if(parameter != ""){
+								GGCodeParseError(11);
+								return;
+							}
+							if(tag_checker[(tag_checker.length-1)][0] == buffer.substr(1, buffer.length)){
+								tag_placements[tag_checker[(tag_checker.length-1)][1]].push(text_array.length);
+								text_array.push(buffer);
+								tag_checker.splice((tag_checker.length-1), 1);
+							}else{
+								GGCodeParseError(11);
+								return;
+							}
+						}else{
+							text_array.push("["+buffer+"]");
+						}
+						buffer = "";
+					}else if(text[start] == "["){
+						if(buffer != null && buffer != "" && buffer.length != 0){
+							text_array.push(buffer);
+						}
+						buffer = "";
+					}else{
+						if(text[start] == "\n") buffer += "<br>";
+						else
+						buffer += text[start];
+					}
+				}
+				if(tag_checker.length != 0){
+					GGCodeParseError(22);
+					return;
+				}
+				return [text_array, tag_placements];
+			},
+			preview(id){
+				var call = this.parser(document.querySelectorAll(".sbeditor-container")[id].querySelector(".sbeditor-textbox").value);
+				var fixed_text = call[0];
+				var tag_placements = call[1];
+				for(var i in tag_placements){
+					if(this.tagarray[tag_placements[i][0]]["parameter"] === true){
+						fixed_text = this.functions[tag_placements[i][0]](fixed_text,tag_placements[i][2],tag_placements[i][3],tag_placements[i][1]);
+					}else{
+						fixed_text = this.functions[tag_placements[i][0]](fixed_text,tag_placements[i][2],tag_placements[i][3]);
+					}
+				}
+				var output = fixed_text.join('');
+				document.querySelectorAll(".sbeditor-container")[id].querySelectorAll(".sbeditor-preview")[0].innerHTML = output;
+			},
+			register(title,parameterboolean,func){
+				this.functions[title] = func;
+				this.tagarray[title] = {paramater:parameterboolean};
+			}
+		}
+	}else{
+		console.log("sbEditor is already imported.");
+	}
+</script>
+<script type="text/javascript">
+	sbEditor.init();
+	/*sbEditor.register('b',false,function(text,opentag,closetag){ // title, parameterboolean, function
+		text[opentag] = "ff";
+		text[closetag] = "ff";
+		return text;
+	});*/
+</script>
+<div class="sbeditor-container">
+
+</div>
