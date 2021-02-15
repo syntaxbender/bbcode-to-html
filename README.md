@@ -1,10 +1,16 @@
-# sbEditor is a GGCode Editor
+# bbCode to HTML with parser
 
 ## What is this?
-This editor purpose to render html contents from BBCode-like(GGCode) format.
+This is not a wysiwyg editor. This script provide to generate html content from bbcodes. It is supports register new bbcodes or override an existing bbcodes.
+
+## Why need this?
+This script is so lightweight, easy to apply, new bbcodes can register easily and all the excellent features that I can't predict right now.
 
 ## What is difference? Why need this?
-This script prevents parse errors and fully editable for my usage. I can get instantly html rendered and GGCode outputs.
+This script prevents parse errors and fully editable.
+
+## Why isn't this a wysiwyg editor?
+May next releases is will be wysiwyg editor. There is not enough time for right now.
 
 ## Tags Usages
 ### First version targets
