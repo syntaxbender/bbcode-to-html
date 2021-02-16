@@ -10,7 +10,7 @@ This script is so lightweight, easy to apply, new bbcodes can register easily an
 This script prevents parse errors and fully editable.
 
 ## Why isn't this a wysiwyg editor?
-May next releases is will be wysiwyg editor. There is not enough time for right now.
+May the next releases is will be wysiwyg editor. There is not enough time for right now.
 
 ## Tags Usages
 ### First version targets
