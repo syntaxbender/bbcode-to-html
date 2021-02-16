@@ -1,7 +1,7 @@
 # bbCode to HTML with parser
 
 ## What is this?
-This is not a wysiwyg editor. This script provide to generate html content from bbcodes with **bbcode parser**. It is supports register new bbcodes or override an existing bbcodes.
+This is not a wysiwyg editor. This script provide to generate html content from bbcodes with <ins>**bbcode parser**</ins>. It is supports register new bbcodes or override an existing bbcodes.
 
 ## Why need this?
 This script is so lightweight, easy to apply, new bbcodes can register easily and all the excellent features that I can't predict right now.
