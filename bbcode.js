@@ -38,7 +38,8 @@
 					return text;
 				},
 				code: function(text,opentag,closetag,parameter){
-					text[opentag] = "<pre><code class=\""+parameter+"\">";
+					if(parameter != "") var classn=" class=\""+parameter+"\""; else classn="";
+					text[opentag] = "<pre><code"+classn+">";
 					text[closetag] = "</code></pre>";
 					return text;
 				},
@@ -72,10 +73,10 @@
 				"h1":{parameter:false},
 				"h2":{parameter:false},
 				"h3":{parameter:false},
-				"highlight":{parameter:true},
-				"code":{parameter:true},
+				"highlight":{parameter:false},
+				"code":{parameter:false},
 				"img":{parameter:false},
-				"quote":{parameter:true},
+				"quote":{parameter:false},
 				"ul":{parameter:false},
 				"li":{parameter:false},
 			},
