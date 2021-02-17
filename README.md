@@ -52,17 +52,22 @@ Add textbox area inside body tags.
 If you want to add specitic bbcode tag or override an existing bbcode tag, register it like this.
 
 ``` javascript
-    // dont touch this parameters "(text,opentag,closetag)".
-    
-		sbEditor.register('u',false,function(text,opentag,closetag){ // bbcode, parameter required boolean, function
-			text[opentag] = "<span style=\"color:red;\">";
-			text[closetag] = "</span>";
-			return text;
-		});
+// dont touch this parameters "(text,opentag,closetag)".
+sbEditor.register('u',false,function(text,opentag,closetag){ // bbcode, parameter required boolean, function
+	text[opentag] = "<span style=\"color:red;\">";
+	text[closetag] = "</span>";
+	return text;
+});
 ``` 
-Call init method.
+Call init method, it will be ready for use.
 ``` javascript
 sbEditor.init();
 ``` 
+Get bbcode or html outputs from textboxes.
+
+``` javascript
+sbEditor.getOutput(id)[0]; // get zeroth textbox value and html output. it will return as array. first element is textbox value. the second value is html output.
+sbEditor.get(); // get all textbox values and html outputs.
+```
 
 for more check examples.html
