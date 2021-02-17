@@ -29,4 +29,4 @@ May the next releases is will be wysiwyg editor. There is not enough time for ri
 
 ### Support in the future
 - Table support
-- All the excellent features that I can't predict right now
+- All the excellent features that I can't predict right now 
