@@ -26,7 +26,7 @@ May the next releases is will be wysiwyg editor. There is not enough time for ri
 | [color=color]text[/color] | color text, parameter required. |
 | [code=language]text[/code] | create code elements, parameter optional. |
 | [quote=origin]text[/quote] | create blockquote elements, parameter optional |
-| [ul] li ggcode [/ul] | create ul element, need improvements. |
+| [ul] li bbcode [/ul] | create ul element, need improvements. |
 | [li]text1[/li] | create li element, need improvements. |
 
 ## Usage
